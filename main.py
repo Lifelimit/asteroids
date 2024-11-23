@@ -13,7 +13,10 @@ def main():
 	pygame.init()
 	screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 	clock = pygame.time.Clock()
+	font = pygame.font.Font(None, 36)
 	dt = 0
+	score = 0
+	lives = 3
  
 	updatable = pygame.sprite.Group()
 	drawable = pygame.sprite.Group()
@@ -35,19 +38,36 @@ def main():
 
 		screen.fill("black") # fill the screen with black
 		dt = clock.tick(60) / 1000 # limit fps to 60
+  
+		score_text = font.render(f"Score: {score}", True, pygame.Color("white"))
+		text_rect = score_text.get_rect(center=(SCREEN_WIDTH / 2, 20))
+		screen.blit(score_text, text_rect)
+  
+		lives_text = font.render(f"Lives: {lives}", True, pygame.Color("white"))
+		text_rect = lives_text.get_rect(center=(50, 20))
+		screen.blit(lives_text, text_rect)
 
 		for object in updatable:
 			object.update(dt)
 		
 		for asteroid in asteroids:
 			if asteroid.collission(player):
-				print("Game over!")
-				sys.exit()
+				lives -= 1
+				if lives <= -1:
+					print("Game over!")
+					sys.exit()
+				else:
+					player.position = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+					player.velocity = pygame.Vector2(0, 0)
+     
     
 			for shot in shots:
 				if asteroid.collission(shot):
+					if asteroid.radius <= ASTEROID_MIN_RADIUS:
+						score += 1
 					asteroid.split(asteroidfield)
 					shot.kill()
+					
     
 		for object in drawable:
 			object.draw(screen)
