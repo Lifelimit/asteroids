@@ -3,12 +3,7 @@ from constants import *
 
 class CircleShape(pygame.sprite.Sprite):
     def __init__(self, x, y, radius):
-        # we will be using this later
-        if hasattr(self, "containers"):
-            super().__init__(self.containers)
-        else:
-            super().__init__()
-            
+        super().__init__(self.containers if hasattr(self, "containers") else None)
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(0, 0)
         self.radius = radius
@@ -16,10 +11,8 @@ class CircleShape(pygame.sprite.Sprite):
         
     def collission(self, other):
         return self.position.distance_to(other.position) <= self.radius + other.radius
-        
     
     def draw(self, screen):
-        # sub-classes must override
         pass
     
     def update(self, dt):
@@ -28,16 +21,12 @@ class CircleShape(pygame.sprite.Sprite):
             self.constrain_to_screen()
         
     def constrain_to_screen(self):
-        if self.position.x < self.radius:
-            self.position.x = self.radius
-            self.velocity.x *= -1
-        elif self.position.x > SCREEN_WIDTH - self.radius:
-            self.position.x = SCREEN_WIDTH - self.radius 
+        # Constrain x position
+        if self.position.x < self.radius or self.position.x > SCREEN_WIDTH - self.radius:
+            self.position.x = min(max(self.position.x, self.radius), SCREEN_WIDTH - self.radius)
             self.velocity.x *= -1
 
-        if self.position.y < self.radius:
-            self.position.y = self.radius
-            self.velocity.y *= -1
-        elif self.position.y > SCREEN_HEIGHT - self.radius:
-            self.position.y = SCREEN_HEIGHT - self.radius
+        # Constrain y position  
+        if self.position.y < self.radius or self.position.y > SCREEN_HEIGHT - self.radius:
+            self.position.y = min(max(self.position.y, self.radius), SCREEN_HEIGHT - self.radius)
             self.velocity.y *= -1
